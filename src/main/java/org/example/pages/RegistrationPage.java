@@ -69,6 +69,6 @@ public class RegistrationPage {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(registrationResult)).getText();
     }
 
-    public src/main/java/org/example/testcases/RegistrationTest.javasrc/main/java/org/example/testcases/RegistrationTest.java clickRegisterLink() {
+ void clickRegisterLink() {
     }
 }
