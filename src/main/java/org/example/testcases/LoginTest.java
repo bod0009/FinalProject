@@ -2,9 +2,11 @@ package org.example.testcases;
 
 import org.example.base.Base;
 import org.example.pages.LoginPage;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.testng.Assert;
+import org.openqa.selenium.WebElement;
 import org.testng.annotations.*;
+import org.testng.asserts.SoftAssert;
 
 public class LoginTest extends Base {
     WebDriver driver;
@@ -33,9 +35,13 @@ public class LoginTest extends Base {
         loginPage.enterPassword(VALID_PASSWORD);
         loginPage.clickLoginButton();
 
-        Assert.assertTrue(loginPage.getCurrentUrl().contains("nopcommerce.com") ||
-                        loginPage.getWelcomeMessage().contains("Welcome"),
-                "User was not redirected correctly after login");
-    }
+        SoftAssert soft = new SoftAssert();
 
+        WebElement accountIcon = driver.findElement(By.cssSelector(".ico-account"));
+        soft.assertTrue(accountIcon.isDisplayed(), "Account icon not displayed - login may have failed");
+
+        soft.assertTrue(driver.getPageSource().contains("Welcome to our store"), "Welcome message not found");
+
+        soft.assertAll();
+    }
 }
