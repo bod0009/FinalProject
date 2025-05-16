@@ -4,16 +4,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class Base {
-    public static WebDriver driver;
-
-    public static void initDriver() {
-        driver = new ChromeDriver();
+    public WebDriver openBrowser() {
+        WebDriver driver = new ChromeDriver();
         driver.manage().window().maximize();
-    }
-
-    public static void quitDriver() {
-        if (driver != null) {
-            driver.quit();
-        }
+        return driver;
     }
 }
