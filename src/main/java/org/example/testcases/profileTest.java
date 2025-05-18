@@ -1,26 +1,29 @@
 package org.example.testcases;
 
 import org.example.base.Base;
-import org.openqa.selenium.By;
+import org.example.pages.LoginPage;
+import org.example.pages.profilePage;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 
 public class profileTest extends Base {
-    WebDriver driver;
-    SoftAssert soft;
+    private WebDriver driver;
+    private SoftAssert soft;
+    private LoginPage loginPage;
+    private profilePage profilePage;
 
     final String BASE_URL = "https://demo.nopcommerce.com";
     final String VALID_EMAIL = "test@example.com";
     final String VALID_PASSWORD = "Test@123";
     final String NEW_FIRST_NAME = "newname";
-    final String PRODUCT_TO_ADD = "Wireless Mouse";
 
     @BeforeMethod
     public void setup() {
         driver = openBrowser();
         soft = new SoftAssert();
+        loginPage = new LoginPage(driver);
+        profilePage = new profilePage(driver);
         loginToApplication();
     }
 
@@ -32,57 +35,31 @@ public class profileTest extends Base {
 
     private void loginToApplication() {
         driver.get(BASE_URL + "/login");
-        driver.findElement(By.id("Email")).sendKeys(VALID_EMAIL);
-        driver.findElement(By.id("Password")).sendKeys(VALID_PASSWORD);
-        driver.findElement(By.cssSelector("button.login-button")).click();
+        loginPage.enterEmail(VALID_EMAIL);
+        loginPage.enterPassword(VALID_PASSWORD);
+        loginPage.clickLoginButton();
     }
 
     @Test(priority = 1, description = "TC_POST_001 - View user profile information")
     public void testViewUserProfileInformation() {
-        driver.findElement(By.cssSelector(".ico-account")).click();
-        WebElement accountDetails = driver.findElement(By.cssSelector(".customer-info"));
-        soft.assertTrue(accountDetails.isDisplayed(), "User profile info not displayed");
+        profilePage.navigateToProfile();
+        soft.assertTrue(profilePage.isProfileInfoDisplayed(), "User profile info not displayed");
     }
 
     @Test(priority = 2, description = "TC_POST_002 - Edit user profile information")
     public void testEditUserProfileInformation() {
-        driver.findElement(By.cssSelector(".ico-account")).click();
-        driver.findElement(By.linkText("Profile")).click();
+        profilePage.navigateToProfile();
+        profilePage.clickProfileLink();
+        profilePage.updateFirstName(NEW_FIRST_NAME);
+        profilePage.saveProfileChanges();
 
-        WebElement firstName = driver.findElement(By.id("FirstName"));
-        firstName.clear();
-        firstName.sendKeys(NEW_FIRST_NAME);
-
-        driver.findElement(By.cssSelector(".save-customer-info-button")).click();
-
-        WebElement successMessage = driver.findElement(By.cssSelector(".content"));
-        soft.assertTrue(successMessage.getText().contains("updated"), "Profile update message not shown");
-        soft.assertTrue(driver.findElement(By.id("FirstName")).getAttribute("value").equals(NEW_FIRST_NAME),
-                "First name not updated");
-    }
-
-    @Test(priority = 6, description = "TC_POST_006 - Add product to cart from product details page")
-    public void testAddProductToCart() {
-        searchForProduct(PRODUCT_TO_ADD);
-        driver.findElement(By.cssSelector(".product-title a")).click();
-        driver.findElement(By.id("add-to-cart-button")).click();
-
-        WebElement confirmation = driver.findElement(By.cssSelector(".content"));
-        soft.assertTrue(confirmation.getText().contains("added to your"), "Add to cart confirmation not shown");
+        soft.assertTrue(profilePage.isSuccessMessageDisplayed(), "Profile update message not shown");
+        soft.assertEquals(profilePage.getFirstNameValue(), NEW_FIRST_NAME, "First name not updated");
     }
 
     @Test(priority = 12, description = "TC_POST_012 - Logout from website")
     public void testLogout() {
-        driver.findElement(By.cssSelector(".ico-logout")).click();
-        soft.assertTrue(driver.findElement(By.cssSelector(".ico-login")).isDisplayed(),
-                "Login link not visible after logout");
-    }
-
-    // Helper methods
-    private void searchForProduct(String productName) {
-        WebElement searchBox = driver.findElement(By.id("small-searchterms"));
-        searchBox.clear();
-        searchBox.sendKeys(productName);
-        driver.findElement(By.cssSelector(".search-box-button")).click();
+        profilePage.logout();
+        soft.assertTrue(profilePage.isLoginLinkDisplayed(), "Login link not visible after logout");
     }
 }
